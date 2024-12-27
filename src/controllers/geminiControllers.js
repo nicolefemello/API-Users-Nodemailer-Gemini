@@ -1,4 +1,4 @@
-import chatAI from '../models/geminiModel.js';
+import chatAI from "../services/chatService.js";
 
 class IAController {
   static async sendMessage(req, res) { //send message
@@ -6,7 +6,7 @@ class IAController {
     const userMessage = req.body.message;
 
     await chat.sendMessage(
-      "Você é o Kratus. És especializado em responder perguntas sobre esportes, vida saudávedl, sobre o site Athletic Punk e você. Responda as perguntas de forma simples e conversando como se fosse amigo do usuário."
+      "Você é o Kratus. És especializado em responder perguntas sobre esportes, vida saudável, sobre o site Athletic Punk e você. Responda as perguntas de forma simples e conversando como se fosse amigo do usuário."
     );
 
     try {

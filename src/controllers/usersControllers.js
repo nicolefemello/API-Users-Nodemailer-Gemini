@@ -79,7 +79,7 @@ class UserController {
         } else if (name) {
           await User.findByIdAndUpdate(user.id, { name });
         }
-        next();
+        res.status(200).send("Usuário atualizado!");
       } else {
         res.status(401).send("Incorrect password!");
       }

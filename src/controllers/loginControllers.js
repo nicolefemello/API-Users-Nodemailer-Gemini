@@ -1,19 +1,15 @@
-import User from '../models/userModel.js';
-import bcrypt from 'bcrypt';
-import JsonWebToken  from 'jsonwebtoken';
+import auth from "../services/auth.js";
 
 class loginControllers {
-    static async login(req, res, next) {
-        const email =  req.body.email;
-        const user = await User.findOne({email});
-        const verify = await bcrypt.compare(req.body.password, user.password);
+  static async login(req, res, next) {
+    try {
+      const authLogin = auth(req.body.email, req.body.password);
 
-        if (verify) {
-            next();
-        } else {
-            res.status(500).send("Erro no login");
-        }
+      next();
+    } catch (error) {
+      res.status(500).send("Error logging in " + error);
     }
+  }
 }
 
 export default loginControllers;

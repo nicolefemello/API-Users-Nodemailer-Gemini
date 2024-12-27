@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import SMTP from "../config/SMTP.js";
+import transport from "../services/emailService.js";
 import User from "../models/userModel.js";
 
 class emailsControllers {
@@ -8,18 +9,7 @@ class emailsControllers {
     const name = req.body.name;
 
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: SMTP.from,
-          pass: SMTP.pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const transporter = transport;
 
       const sendEmail = await transporter
         .sendMail({
@@ -32,9 +22,7 @@ class emailsControllers {
                     <p>Qualquer dúvida, estamos por aqui.</p><br>
                     Abraços,<br>
                         Equipe Athletic Punk 🏀⚽🤸‍♀️`,
-        })
-        .then(() => console.log("Email sent successfully!"))
-        .catch((error) => console.error(error));
+        }).catch((error) => console.error(error));
 
         const user = await User.findOne({ email });
         user.emailsSend.push({ sendEmail });
@@ -52,18 +40,7 @@ class emailsControllers {
     const workoutRoutine = "segunda: perna, terça: costas...";
 
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: SMTP.from,
-          pass: SMTP.pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const transporter = transport;
 
       const sendEmail = await transporter
         .sendMail({
@@ -76,9 +53,7 @@ class emailsControllers {
                     <p>É com muita alegria que agradecemos pela confiança e parceria com a Athletic Punk. Obrigado! Lembre-se:<i> “O esporte é tão incrível que não muda só sua saúde, mas seu hábito, sua rotina, suas metas, seu corpo e consequentemente sua vida!”</i>.</p>
                     Abraços,<br>
                         Equipe Athletic Punk 🏀⚽🤸‍♀️`,
-        })
-        .then(() => console.log("Email sent successfully!"))
-        .catch((error) => console.error(error));
+        }).catch((error) => console.error(error));
 
       const user = await User.findOne({ email });
       user.emailsSend.push({ sendEmail });
@@ -92,22 +67,11 @@ class emailsControllers {
 
   static async loginEmail(req, res) { //login
     const email = req.body.email;
-    let name;
+    const name = req.body.name;
     const newPassword = "link to new password";
 
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: SMTP.from,
-          pass: SMTP.pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const transporter = transport;
 
       const sendEmail = await transporter
         .sendMail({
@@ -122,9 +86,7 @@ class emailsControllers {
                     <p>Aqui no Athletic Punk, nos importamos com sua segurança e de seus dados e, estamos aqui para protegê-los da melhor forma possível!😉</p>
                     Abraços,<br>
                         Equipe Athletic Punk 🏀⚽🤸‍♀️`,
-        })
-        .then(() => console.log("Email sent successfully!"))
-        .catch((error) => console.error(error));
+        }).catch((error) => console.error(error));
 
       const user = await User.findOne({ email });
       user.emailsSend.push({ sendEmail });
@@ -142,18 +104,7 @@ class emailsControllers {
     const newPassword = "link to new password";
 
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: SMTP.from,
-          pass: SMTP.pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const transporter = transport;
 
       const sendEmail = await transporter
         .sendMail({
@@ -168,9 +119,7 @@ class emailsControllers {
                     <p>Aqui no Athletic Punk, nos importamos com sua segurança e de seus dados e, estamos aqui para protegê-los da melhor forma possível!😉</p>
                     Abraços,<br>
                         Equipe Athletic Punk 🏀⚽🤸‍♀️`,
-        })
-        .then(() => console.log("Email sent successfully!"))
-        .catch((error) => console.error(error));
+        }).catch((error) => console.error(error));
 
       const user = await User.findOne({ email });
       user.emailsSend.push({ sendEmail });
@@ -187,18 +136,7 @@ class emailsControllers {
     let name;
 
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: SMTP.from,
-          pass: SMTP.pass,
-        },
-        tls: {
-          rejectUnauthorized: false,
-        },
-      });
+      const transporter = transport;
 
       const sendEmail = await transporter
         .sendMail({
@@ -211,9 +149,7 @@ class emailsControllers {
                     <p>Pedimos desculpas se não atingimos suas expectativas...</p>
                     Abraços,<br>
                         Equipe Athletic Punk 🏀⚽🤸‍♀️`,
-        })
-        .then(() => console.log("Email sent successfully!"))
-        .catch((error) => console.error(error));
+        }).catch((error) => console.error(error));
 
       res.status(200).send("Email sent successfully!");
     } catch (error) {
