@@ -6,10 +6,9 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   emailsSend: [
     {
-      from: { type: String },
-      to: { type: String },
       subject: { type: String },
-      message: { type: String }
+      message: { type: String },
+      dateSent: { type: Date, default: Date.now }
     },
   ],
 });

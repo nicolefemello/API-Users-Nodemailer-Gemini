@@ -1,20 +1,18 @@
+import emailMiddleware from "../middlewares/emailMiddleware.js";
+import passwordMiddleware from "../middlewares/passwordMiddleware.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
-import validatePassword from "../middlewares/passwordMiddleware.js";
 
 class UserController {
-  static async createUser(req, res, next) { //post user
+  static async createUser(req, res, next) {
     try {
-      const email = req.body.email;
-      const existingEmail = await User.findOne({ email });
-      if (existingEmail) //verifica se o email está em uso ou não
-        res.status(409).send("The email " + email + "is already in use."); 
+      if (req.body.email == null && req.body.password == null && req.body.name == null) return res.status(400).send("All fields must be filled in");
 
-      const passwordValid = validatePassword(req.body.password);
+      const validateEmail = await emailMiddleware.existingEmail(req.body.email);
+      if (validateEmail != null) return res.status(400).send(validateEmail);
 
-      if (passwordValid == false) { //verifica se a senha é válida
-        return res.status(400).send("The password must contain between 8 and 20 characters, a lowercase letter, a number and special characters!");
-      }
+      const isValidatePassword = await passwordMiddleware.validatePassword(req.body.password);
+      if (!isValidatePassword) return res.status(400).send("The password must contain between 8 and 20 characters, a lowercase letter, a number and special characters!");
 
       const passwordHash = await bcrypt.hash(req.body.password, 8);
 
@@ -30,7 +28,7 @@ class UserController {
     }
   }
 
-  static async showUsers(req, res) { //get users
+  static async showUsers(req, res) {
     try {
       const users = await User.find();
 
@@ -40,68 +38,67 @@ class UserController {
     }
   }
 
-  static async updateUser(req, res, next) { //put user
+  static async updateUser(req, res, next) {
     try {
-      const { email, currentPassword, newPassword, name } = req.body;
+      if (req.body.currentPassword != null) {
 
-      const user = await User.findById(req.params.id);
-      const verify = await bcrypt.compare(currentPassword, user.password);
+        const email = req.body.email;
+        const currentPassword = req.body.currentPassword;
+        const newPassword = req.body.newPassword;
+        const name = req.body.name;
 
-      if (verify) {
+        const user = await User.findById(req.params.id);
+        const verify = await bcrypt.compare(currentPassword, user.password);
 
-        if (email) {
-          const existingEmail = await User.findOne({ email });
-          if (existingEmail.id.toString() != user.id) {
-            return res
-              .status(409)
-              .send("You already have a user with this email!");
-          } else if (existingEmail == user.id) {
-            return res
-              .status(409)
-              .send("The new email must be different from the old email!");
-          } else {
+        if (verify) {
+
+          if (email != undefined) {
+            const validateEmail = await emailMiddleware.existingEmail(req.body.email);
+            if (validateEmail != null) return res.status(409).send(validateEmail);
             await User.findByIdAndUpdate(user.id, { email });
-          }
 
-        } else if (newPassword) {
-          if (currentPassword == newPassword) {
-            return res
-              .status(401)
-              .send(
-                "The new password must be different from the old password!"
-              );
-          } else {
-            const hashedPassword = await bcrypt.hash(req.body.newPassword, 8);
-            user.password = hashedPassword;
-            await user.save();
-          }
+          } else if (newPassword != undefined) {
+            if (currentPassword == newPassword) {
+              return res.status(401).send("The new password must be different from the old password!");
+            } else {
+              const isValidatePassword = await passwordMiddleware.validatePassword(newPassword);
+              if (!isValidatePassword) return res.status(400).send("The password must contain between 8 and 20 characters, a lowercase letter, a number and special characters!");
 
-        } else if (name) {
-          await User.findByIdAndUpdate(user.id, { name });
+              const hashedPassword = await bcrypt.hash(newPassword, 8);
+              user.password = hashedPassword;
+              await user.save();
+            }
+
+          } else if (name != undefined) {
+            await User.findByIdAndUpdate(user.id, { name });
+          }
+          next();
+        } else {
+          res.status(401).send("Incorrect password!");
         }
-        res.status(200).send("Usuário atualizado!");
-      } else {
-        res.status(401).send("Incorrect password!");
+      } else  {
+        res.status(400).send("The password is obrigatory!");
       }
     } catch (error) {
       res.status(500).send("Error updating user! " + error);
     }
   }
 
-  static async deleteUser(req, res, next) { //delete user
+  static async deleteUser(password, user, next) {
     try {
-      const user = await User.findById(req.params.id);
-      const password = req.body.password;
-      const verify = await bcrypt.compare(password, user.password);
-
-      if (verify) {
-        await User.findByIdAndDelete(user.id);
-        next();
+      if (password != null) {
+        const verify = await bcrypt.compare(password, user.password);
+  
+        if (verify) {
+          await User.findByIdAndDelete(user.id);
+        } else {
+          return "Incorrect password!";
+        }
       } else {
-        res.status(401).send("Incorrect password!");
+        return "Password is obrigatory!";
       }
     } catch (error) {
-      res.status(500).send("Error deleting user! " + error);
+      return "Error deleting user! " + error;
     }
   }
 }

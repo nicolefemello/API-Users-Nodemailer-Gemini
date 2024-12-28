@@ -1,17 +1,29 @@
 import nodemailer from "nodemailer";
 import SMTP from "../config/SMTP.js";
 
-const transport = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: SMTP.from,
-    pass: SMTP.pass,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
+class emailServices {
+  static async sendEmail(to, subject, message) {
+    const transporter = nodemailer.createTransport({
+    host: SMTP.host,
+    port: SMTP.port,
+    secure: SMTP.secure,
+    auth: {
+      user: SMTP.from,
+      pass: SMTP.pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
 
-export default transport;
+  const sendEmail = await transporter.sendMail({
+    from: SMTP.from,
+    to: to,
+    subject: subject,
+    html: message
+  }).catch((error) => console.error(error));
+}
+}
+
+
+export default emailServices;
