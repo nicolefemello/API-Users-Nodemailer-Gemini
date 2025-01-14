@@ -1,22 +1,27 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+import createToken from "../services/tokenService.js";
 
 class authControllers {
   static async login(req, res, next) {
     try {
       const email = req.body.email;
-      const password = req.body.password;
-
       const user = await User.findOne({ email });
-      const verify = await bcrypt.compare(password, user.password);
 
-      if (verify) {
-        const token = jwt.sign({ email: user.email }, process.env.KEY_TOKEN);
-        next();
+      if (user) {
+        const verify = await bcrypt.compare(req.body.password, user.password);
+        if (!verify) return res.status(400).send("Password Invalid!");
+
+        const token = await createToken(email);
+        console.log(token);
+        res.status(200).send("Token created!");
+        
       } else {
-        res.status(401).send("Password invalid!");
+        return res.status(400).send("User not found!");
       }
+
+      next();
     } catch (error) {
       res.status(500).send("Error in login user! " + error);
     }

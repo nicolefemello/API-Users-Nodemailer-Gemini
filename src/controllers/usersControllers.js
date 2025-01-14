@@ -3,24 +3,15 @@ import passwordMiddleware from "../middlewares/passwordMiddleware.js";
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
 
+import userService from "../services/userService.js";
+
 class UserController {
   static async createUser(req, res, next) {
     try {
-      if (req.body.email == null && req.body.password == null && req.body.name == null) return res.status(400).send("All fields must be filled in");
-
-      const validateEmail = await emailMiddleware.existingEmail(req.body.email);
-      if (validateEmail != null) return res.status(400).send(validateEmail);
-
-      const isValidatePassword = await passwordMiddleware.validatePassword(req.body.password);
-      if (!isValidatePassword) return res.status(400).send("The password must contain between 8 and 20 characters, a lowercase letter, a number and special characters!");
-
-      const passwordHash = await bcrypt.hash(req.body.password, 8);
-
-      const user = await User.create({
-        name: req.body.name,
-        email: req.body.email,
-        password: passwordHash,
-      });
+      if (req.body.email == null || req.body.password == null || req.body.name == null) return res.status(400).send("All fields must be filled in");
+    
+      const userCreate = await userService.createUser(req.body.email, req.body.password, req.body.name);
+      if (userCreate != null) return res.status(400).send(userCreate); 
 
       next();
     } catch (error) {
@@ -30,9 +21,7 @@ class UserController {
 
   static async showUsers(req, res) {
     try {
-      const users = await User.find();
-
-      res.status(200).send("Users found: " + users);
+      res.status(200).send("Users found: " + await User.find());
     } catch (error) {
       res.status(500).send("Error finding users! " + error);
     }
@@ -51,27 +40,8 @@ class UserController {
         const verify = await bcrypt.compare(currentPassword, user.password);
 
         if (verify) {
-
-          if (email != undefined) {
-            const validateEmail = await emailMiddleware.existingEmail(req.body.email);
-            if (validateEmail != null) return res.status(409).send(validateEmail);
-            await User.findByIdAndUpdate(user.id, { email });
-
-          } else if (newPassword != undefined) {
-            if (currentPassword == newPassword) {
-              return res.status(401).send("The new password must be different from the old password!");
-            } else {
-              const isValidatePassword = await passwordMiddleware.validatePassword(newPassword);
-              if (!isValidatePassword) return res.status(400).send("The password must contain between 8 and 20 characters, a lowercase letter, a number and special characters!");
-
-              const hashedPassword = await bcrypt.hash(newPassword, 8);
-              user.password = hashedPassword;
-              await user.save();
-            }
-
-          } else if (name != undefined) {
-            await User.findByIdAndUpdate(user.id, { name });
-          }
+          const userUpdate = await userService.updateUser(email, newPassword, name, user, currentPassword);
+          if (userUpdate != null) return res.status(400).send(userUpdate);
           next();
         } else {
           res.status(401).send("Incorrect password!");
