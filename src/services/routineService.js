@@ -10,6 +10,7 @@ class routineService {
 
     try {
         const result = await chat.sendMessage(message);
+
         return result.response.text();
     } catch (error) {
       res.status(500).json({ response: "Erro ao processar a mensagem." });

@@ -15,7 +15,7 @@ class authControllers {
 
         const token = await createToken(email);
         console.log(token);
-        res.status(200).send("Token created!");
+        return res.status(200).send("Token created!");
         
       } else {
         return res.status(400).send("User not found!");
@@ -27,7 +27,9 @@ class authControllers {
     }
   }
 
-  static async logout(req, res) {}
+  static async logout(req, res) {
+    
+  }
 }
 
 export default authControllers;
