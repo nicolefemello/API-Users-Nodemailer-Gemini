@@ -20,9 +20,6 @@ class emailsControllers {
           dateSent: new Date()
         };
 
-        user.emailsSend.push(newEmail);
-        await user.save();
-
       res.status(200).send("Email sent successfully!");
     } catch (error) {
       res.status(500).send("Internal Server Error" + error);
@@ -73,9 +70,6 @@ class emailsControllers {
           dateSent: new Date()
         };
 
-        user.emailsSend.push(newEmail);
-        await user.save();
-
       res.status(200).send("Email sent successfully!");
     } catch (error) {
       res.status(500).send("Internal Server Error" + error);
@@ -97,9 +91,6 @@ class emailsControllers {
           message: message,
           dateSent: new Date()
         };
-
-        user.emailsSend.push(newEmail);
-        await user.save();
 
       res.status(200).send("Email sent successfully!");
     } catch (error) {

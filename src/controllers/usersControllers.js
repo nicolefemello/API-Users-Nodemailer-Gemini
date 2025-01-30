@@ -71,6 +71,10 @@ class UserController {
       return "Error deleting user! " + error;
     }
   }
+
+  static async showUser(req, res) {
+    
+  }
 }
 
 export default UserController;

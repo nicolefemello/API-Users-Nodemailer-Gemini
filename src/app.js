@@ -1,9 +1,11 @@
+import cors from 'cors';
 import express from "express";
 import dbConnect from "./config/dbConnect.js";
 import geminiConnect from "./config/geminiConnect.js";
 import routes from "./routes/index.js";
 
 const app = express();
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 routes(app);
 
